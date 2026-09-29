@@ -9,7 +9,7 @@ import type { CompressOption } from "./engines/ImageBase";
  * @param base
  * @returns
  */
-export function normalize(pathname: string, base = "/") {
+export function normalize(pathname: string, base = import.meta.env.BASE_URL) {
   // Ensure starts with '/'
   pathname = "/" + pathname.replace(/^\/*/, "");
   base = "/" + base.replace(/^\/*/, "");
@@ -43,13 +43,10 @@ export function formatSize(num: number) {
  */
 export function createDownload(name: string, blob: Blob) {
   const anchor = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  anchor.href = url;
+  anchor.href = URL.createObjectURL(blob);
   anchor.download = name;
   anchor.click();
   anchor.remove();
-  // Release the temporary object URL right after the click.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 /**
@@ -60,24 +57,17 @@ export function createDownload(name: string, blob: Blob) {
  * @param name will pushed to names
  */
 export function getUniqNameOnNames(names: Set<string>, name: string): string {
-  let checkName = name;
-  let attempts = 0;
-  const maxAttempts = 100;
-
-  while (names.has(checkName) && attempts < maxAttempts) {
-    const nameParts = checkName.split(".");
-    const extension = nameParts.pop();
-    checkName = nameParts.join("") + "(1)." + extension;
-    attempts++;
-  }
-
-  if (names.has(checkName)) {
-    const nameParts = name.split(".");
-    const extension = nameParts.pop();
-    checkName = nameParts.join("") + "(" + Date.now() + ")." + extension;
-  }
-
-  return checkName;
+  const getName = (checkName: string): string => {
+    if (names.has(checkName)) {
+      const nameParts = checkName.split(".");
+      const extension = nameParts.pop();
+      const newName = nameParts.join("") + "(1)." + extension;
+      return getName(newName);
+    } else {
+      return checkName;
+    }
+  };
+  return getName(name);
 }
 
 /**
@@ -104,12 +94,6 @@ export async function preloadImage(src: string) {
   });
 }
 
-export function isSupportedType(file: File): boolean {
-  if (Object.values(Mimes).includes(file.type)) return true;
-  const ext = file.name.split(".").pop()?.toLowerCase();
-  return ext ? Object.keys(Mimes).includes(ext) : false;
-}
-
 /**
  * Get file list from FileSystemEntry
  * @param entry
@@ -124,7 +108,8 @@ export async function getFilesFromEntry(
     return new Promise<Array<File>>((resolve) => {
       fileEntry.file(
         (result) => {
-          resolve(isSupportedType(result) ? [result] : []);
+          const types = Object.values(Mimes);
+          resolve(types.includes(result.type) ? [result] : []);
         },
         () => [],
       );
@@ -161,7 +146,8 @@ export async function getFilesFromHandle(
   if (handle.kind === "file") {
     const fileHandle = handle as FileSystemFileHandle;
     const file = await fileHandle.getFile();
-    return isSupportedType(file) ? [file] : [];
+    const types = Object.values(Mimes);
+    return types.includes(file.type) ? [file] : [];
   }
 
   // If handle is a directory
@@ -183,10 +169,6 @@ export async function getFilesFromHandle(
  */
 export function splitFileName(fileName: string) {
   const index = fileName.lastIndexOf(".");
-  // No extension: keep the whole name, empty suffix.
-  if (index <= 0) {
-    return { name: fileName, suffix: "" };
-  }
   const name = fileName.substring(0, index);
   const suffix = fileName.substring(index + 1).toLowerCase();
   return { name, suffix };
@@ -199,14 +181,14 @@ export function splitFileName(fileName: string) {
  * @returns
  */
 export function getOutputFileName(item: ImageItem, option: CompressOption) {
-  if (!item.compress || item.blob.type === item.compress.blob.type) {
+  if (item.blob.type === item.compress?.blob.type) {
     return item.name;
   }
 
   const { name, suffix } = splitFileName(item.name);
   let resultSuffix = suffix;
   for (const key in Mimes) {
-    if (item.compress.blob.type === Mimes[key]) {
+    if (item.compress!.blob.type === Mimes[key]) {
       resultSuffix = key;
       break;
     }
@@ -239,8 +221,12 @@ export async function getFilesFromClipboard(event: ClipboardEvent): Promise<Arra
     // Check if the item is an image
     if (item.type.startsWith('image/')) {
       const file = item.getAsFile();
-      if (file && isSupportedType(file)) {
-        files.push(file);
+      if (file) {
+        // Check if the image type is supported
+        const types = Object.values(Mimes);
+        if (types.includes(file.type)) {
+          files.push(file);
+        }
       }
     }
   }

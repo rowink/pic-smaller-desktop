@@ -1,24 +1,15 @@
 import { LocaleData } from "@/type";
+import zhCN from "antd/locale/zh_CN";
 
 const localeData: LocaleData = {
+  antLocale: zhCN,
   logo: "图小小",
-  siteTitle:
-    "图小小 - 在线批量压缩 JPEG、PNG、WEBP、AVIF、HEIC、SVG 和 GIF 图片",
-  siteDescription:
-    "在浏览器中安全压缩 JPEG、PNG、WEBP、AVIF、HEIC、SVG 和 GIF 图片。批量缩放、裁剪和格式转换，全程本地处理，无需上传。",
   initial: "初始化中",
   previewHelp: "拖动分割线对比压缩效果：左边是原始图，右边是压缩图",
-  heif: {
-    previewUnavailable: "浏览器无法直接显示 HEIC/HEIF 原图，因此暂不支持压缩前后对比。",
-    originalPreserved: "未指定输出格式，已保留 HEIC/HEIF 原文件；如需缩放或压缩，请选择输出格式。",
-  },
-  errors: {
-    animatedUnsupported: "不支持压缩动画 AVIF/WebP 图片，已保留原文件。",
-  },
   uploadCard: {
     title: "选取图片到这里，支持拖拽图片和文件夹",
     subTitle: "开源的批量图片压缩工具，支持 %s 格式",
-    pasteHint: "提示：您也可以复制图片后按 Ctrl+V (Cmd+V) 粘贴",
+    pasteHint: "💡 提示：您也可以复制图片后按 Ctrl+V (Cmd+V) 粘贴",
   },
   listAction: {
     batchAppend: "批量添加",
@@ -66,8 +57,6 @@ const localeData: LocaleData = {
     resetBtn: "重置选项",
     confirmBtn: "应用选项",
     qualityTitle: "设置输出图片质量（0-1）",
-    extremeMode: "极限模式",
-    extremeModeHint: "处理速度会更慢，但通常可生成更小的文件。",
     colorsDesc: "设置输出颜色数量（2-256）",
     pngDithering: "设置抖色系数（0-1）",
     gifDithering: "开启抖色",
@@ -77,18 +66,6 @@ const localeData: LocaleData = {
     outputFormatPlaceholder: "选择输出图片格式",
     transparentFillDesc: "选择透明填充色",
     cropCompareWarning: "裁剪模式不支持对比预览",
-    presetCrop: "预设裁切（打印纸）",
-    presetPaperSize: "纸张尺寸",
-    presetOrientation: "方向",
-    presetPortrait: "竖版",
-    presetLandscape: "横版",
-    presetRefWidth: "以宽边为准",
-    presetRefHeight: "以长边为准",
-    presetCropPx: "每侧裁剪(px)",
-    presetOffsetPx: "偏移(px)",
-    presetCropWarning: "图片{axis}不足以达到{paper}比例",
-    presetSwitchRef: "切换基准边",
-    presetCancelCrop: "取消预设裁切",
   },
   error404: {
     backHome: "返回首页",

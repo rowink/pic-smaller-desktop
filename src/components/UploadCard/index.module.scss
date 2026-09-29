@@ -3,24 +3,20 @@
   position: relative;
   cursor: pointer;
   user-select: none;
-  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-subtle) 100%);
-  border: 2px dashed var(--color-border-strong);
-  border-radius: var(--radius-md);
+  background-color: #f7f7f7;
+  border: 2px dashed #e0e0e0;
   overflow: hidden;
-  min-height: 360px;
-  display: grid;
-  place-items: center;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+  box-sizing: border-box;
+  min-height: 320px;
+  transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--color-secondary);
-    background: var(--color-action-soft);
+    border-color: #078249;
+    background-color: #f9f9f9;
   }
 
   &:active {
-    background-color: var(--color-surface-muted);
+    background-color: darken($color: #f9f9f9, $amount: 3);
   }
 
   > input {
@@ -28,70 +24,52 @@
   }
 
   &.active {
-    border-color: var(--color-secondary);
-    background: var(--color-action-soft);
+    border-color: #078249;
+    background-color: rgba(7, 130, 73, 0.05);
   }
 }
 
 .inner {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 620px;
-  padding: 48px 24px;
-
-  .uploadIcon {
-    display: grid;
-    width: 72px;
-    height: 72px;
-    place-items: center;
-    color: var(--color-secondary);
-    background: var(--color-action-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    svg {
-      width: 34px;
-      height: 34px;
+  line-height: 1;
+  padding: 32px 20px;
+  
+  svg {
+    width: 64px;
+    height: 64px;
+    path {
+      fill: #078249;
+      transition: fill 0.3s ease;
     }
   }
-
-  > strong {
+  
+  > span:nth-child(2) {
     margin-top: 24px;
-    color: var(--color-foreground);
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
     text-align: center;
     padding: 0 16px;
+    color: #333;
   }
-
-  > p {
-    width: 100%;
-    box-sizing: border-box;
+  
+  > div:nth-child(3) {
     margin-top: 12px;
-    margin-bottom: 0;
-    color: var(--color-text-muted);
+    color: #666;
     text-align: center;
     padding: 0 16px;
     line-height: 1.6;
     max-width: 480px;
   }
-
+  
   .pasteHint {
     margin-top: 24px;
-    color: var(--color-primary);
+    color: #078249;
     text-align: center;
-    padding: 10px 18px;
-    background-color: var(--color-action-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    padding: 12px 24px;
+    background-color: rgba(7, 130, 73, 0.08);
+    border-radius: 0;
     font-size: 14px;
     line-height: 1.5;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    border-left: 4px solid #078249;
   }
 }
 
@@ -101,24 +79,4 @@
   position: absolute;
   top: 0;
   left: 0;
-  border: 0;
-  padding: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-@media (max-width: 640px) {
-  .container {
-    min-height: 280px;
-  }
-
-  .inner {
-    padding: 36px 12px;
-    > span:nth-child(2) {
-      font-size: 22px;
-    }
-    .pasteHint {
-      border-radius: var(--radius-md);
-    }
-  }
 }

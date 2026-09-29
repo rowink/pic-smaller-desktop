@@ -1,20 +1,10 @@
-import { Mimes } from "@/mimes";
-
 export interface ImageInfo {
   key: number;
   name: string;
   width: number;
   height: number;
   blob: Blob;
-  bitmap?: ImageBitmap;
 }
-
-export const PREVIEW_MAX_SIZE = 256;
-export const OXI_PNG_LEVEL = 2;
-export const OXI_PNG_EXTREME_LEVEL = 6;
-export const MAX_CONCURRENCY = 3;
-export const MAX_CANVAS_DIMENSION = 16384;
-export const MAX_FILE_SIZE_WARNING = 50 * 1024 * 1024;
 
 export interface CompressOption {
   preview: {
@@ -27,8 +17,7 @@ export interface CompressOption {
       | "setShort"
       | "setLong"
       | "setCropRatio"
-      | "setCropSize"
-      | "presetCrop";
+      | "setCropSize";
     width?: number;
     height?: number;
     short?: number;
@@ -37,13 +26,6 @@ export interface CompressOption {
     cropHeightRatio?: number;
     cropWidthSize?: number;
     cropHeightSize?: number;
-    presetCrop?: {
-      paperSize: string;
-      orientation: "portrait" | "landscape";
-      reference: "width" | "height";
-      cropPx?: number;
-      offsetPx?: number;
-    };
   };
   format: {
     target?: "jpg" | "jpeg" | "png" | "webp" | "avif";
@@ -51,12 +33,10 @@ export interface CompressOption {
   };
   jpeg: {
     quality: number; // 0-1
-    extreme: boolean;
   };
   png: {
     colors: number; // 2-256
     dithering: number; // 0-1
-    extreme: boolean;
   };
   gif: {
     colors: number; // 2-256
@@ -82,19 +62,6 @@ export interface Dimension {
   height: number;
 }
 
-export const PAPER_SIZES: Record<
-  string,
-  { label: string; width: number; height: number }
-> = {
-  a3: { label: "A3", width: 297, height: 420 },
-  a4: { label: "A4", width: 210, height: 297 },
-  a5: { label: "A5", width: 148, height: 210 },
-  letter: { label: "US Letter", width: 216, height: 279 },
-  legal: { label: "US Legal", width: 216, height: 356 },
-  b4: { label: "B4", width: 257, height: 364 },
-  b5: { label: "B5", width: 182, height: 257 },
-};
-
 export abstract class ImageBase {
   constructor(
     public info: ImageInfo,
@@ -102,10 +69,6 @@ export abstract class ImageBase {
   ) {}
 
   abstract compress(): Promise<ProcessOutput>;
-
-  setBitmap(bitmap: ImageBitmap) {
-    this.info.bitmap = bitmap;
-  }
 
   /**
    * Get output image dimension, based on resize param
@@ -269,66 +232,6 @@ export abstract class ImageBase {
       };
     }
 
-    // Crop via preset paper size
-    if (method === "presetCrop") {
-      if (!this.option.resize.presetCrop) {
-        return originDimension;
-      }
-
-      const { paperSize, orientation, reference, cropPx, offsetPx } =
-        this.option.resize.presetCrop;
-      const paper = PAPER_SIZES[paperSize];
-      if (!paper || cropPx == null || offsetPx == null) {
-        return originDimension;
-      }
-
-      let ratioW = paper.width;
-      let ratioH = paper.height;
-      if (orientation === "landscape") {
-        ratioW = paper.height;
-        ratioH = paper.width;
-      }
-
-      const refIsWidth = reference === "width";
-      const refDim = refIsWidth ? this.info.width : this.info.height;
-      const otherDim = refIsWidth ? this.info.height : this.info.width;
-      const ratioRef = refIsWidth ? ratioW : ratioH;
-      const ratioOther = refIsWidth ? ratioH : ratioW;
-
-      const cropStart = Math.max(0, cropPx + offsetPx);
-      const cropEnd = Math.max(0, cropPx - offsetPx);
-      const newRefDim = refDim - cropStart - cropEnd;
-
-      if (newRefDim <= 0) {
-        return originDimension;
-      }
-
-      const newOtherDim = Math.round(newRefDim * (ratioOther / ratioRef));
-
-      if (newOtherDim > otherDim) {
-        return originDimension;
-      }
-
-      const refOffset = cropStart;
-      const otherOffset = Math.round((otherDim - newOtherDim) / 2);
-
-      if (refIsWidth) {
-        return {
-          x: refOffset,
-          y: otherOffset,
-          width: Math.ceil(newRefDim),
-          height: Math.ceil(newOtherDim),
-        };
-      } else {
-        return {
-          x: otherOffset,
-          y: refOffset,
-          width: Math.ceil(newOtherDim),
-          height: Math.ceil(newRefDim),
-        };
-      }
-    }
-
     return originDimension;
   }
 
@@ -385,7 +288,7 @@ export abstract class ImageBase {
    */
   async preview(): Promise<ProcessOutput> {
     const { width, height, x, y } = this.getPreviewDimension();
-    const blob = await this.createBlob(width, height, 1, x, y);
+    const blob = await this.createBlob(width, height, x, y);
     return {
       width,
       height,
@@ -405,10 +308,11 @@ export abstract class ImageBase {
   }> {
     const canvas = new OffscreenCanvas(width, height);
     const context = canvas.getContext("2d")!;
-    const image = this.info.bitmap ?? (await createImageBitmap(this.info.blob));
+    const image = await createImageBitmap(this.info.blob);
 
     const method = this.option.resize.method;
-    if (method && ["setCropRatio", "setCropSize", "presetCrop"].includes(method)) {
+    if (method && ["setCropRatio", "setCropSize"].includes(method)) {
+      // Crop mode only
       context?.drawImage(
         image,
         cropX,
@@ -421,6 +325,7 @@ export abstract class ImageBase {
         height,
       );
     } else {
+      // Resize mode only
       context?.drawImage(
         image,
         0,
@@ -435,7 +340,6 @@ export abstract class ImageBase {
     }
 
     image.close();
-    this.info.bitmap = undefined;
     return { canvas, context };
   }
 
@@ -451,15 +355,13 @@ export abstract class ImageBase {
   async createBlob(
     width: number,
     height: number,
-    quality: number,
+    quality = 0.6,
     cropX = 0,
     cropY = 0,
   ) {
     const { canvas } = await this.createCanvas(width, height, cropX, cropY);
     const opiton: ImageEncodeOptions = {
-      type: this.option.format.target
-        ? Mimes[this.option.format.target]
-        : this.info.blob.type,
+      type: this.info.blob.type,
       quality,
     };
     return canvas.convertToBlob(opiton);

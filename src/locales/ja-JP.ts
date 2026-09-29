@@ -1,27 +1,18 @@
 // 日语
 
 import { LocaleData } from "@/type";
+import jaJP from "antd/locale/ja_JP";
 
 const localeData: LocaleData = {
-  logo: "PicSmaller",
-  siteTitle:
-    "PicSmaller - Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images intelligently",
-  siteDescription:
-    "Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images securely in your browser. Batch resize, crop, and convert formats — all processed locally.",
+  antLocale: jaJP,
+  logo: "Pic Smaller",
   initial: "初期化中",
   previewHelp:
     "分割線をドラッグして圧縮効果を比較します。左が元の画像、右が圧縮された画像です",
-  heif: {
-    previewUnavailable: "ブラウザーでは元の HEIC/HEIF 画像を直接表示できないため、圧縮前後の比較は利用できません。",
-    originalPreserved: "出力形式が選択されていないため、元の HEIC/HEIF ファイルを保持しました。サイズ変更または圧縮するには出力形式を選択してください。",
-  },
-  errors: {
-    animatedUnsupported: "アニメーション AVIF/WebP の圧縮には対応していないため、元のファイルを保持しました。",
-  },
   uploadCard: {
     title: "画像をドラッグまたは選択",
     subTitle: "対応フォーマット：%s",
-    pasteHint: "Ctrl+V で画像を貼り付け、またはドラッグ＆ドロップ可能",
+    pasteHint: "💡 Ctrl+V で画像を貼り付け、またはドラッグ＆ドロップ可能",
   },
   listAction: {
     batchAppend: "バッチ追加",
@@ -46,7 +37,7 @@ const localeData: LocaleData = {
   optionPannel: {
     failTip:
       "小さくすることができません。パラメータを調整して再試行してください。",
-    help: "PicSmaller はバッチ画像圧縮アプリケーションです。オプションの変更はすべての画像に適用されます。",
+    help: "Pic Smaller はバッチ画像圧縮アプリケーションです。オプションの変更はすべての画像に適用されます。",
     resizeLable: "画像のサイズを変更する",
     jpegLable: "JPEG/WEBPパラメータ",
     pngLable: "PNG パラメータ",
@@ -70,8 +61,6 @@ const localeData: LocaleData = {
     resetBtn: "オプションをリセット",
     confirmBtn: "オプションを適用",
     qualityTitle: "出力画質を設定します(0-1)",
-    extremeMode: "極限モード",
-    extremeModeHint: "処理は遅くなりますが、通常はファイルサイズが小さくなります。",
     colorsDesc: "出力色の数を設定します (2-256)",
     pngDithering: "ディザリング係数を設定します (0-1)",
     gifDithering: "ディザリングをオンにする",
@@ -81,18 +70,6 @@ const localeData: LocaleData = {
     outputFormatPlaceholder: "出力画像フォーマットの選択",
     transparentFillDesc: "透明な塗りつぶしの色を選択します",
     cropCompareWarning: "クロップ モードは比較プレビューをサポートしていません",
-    presetCrop: "Preset Crop (Paper)",
-    presetPaperSize: "Paper Size",
-    presetOrientation: "Orientation",
-    presetPortrait: "Portrait",
-    presetLandscape: "Landscape",
-    presetRefWidth: "Based on width",
-    presetRefHeight: "Based on height",
-    presetCropPx: "Crop per side (px)",
-    presetOffsetPx: "Offset (px)",
-    presetCropWarning: "Image's {axis} is insufficient for {paper} ratio",
-    presetSwitchRef: "Switch reference edge",
-    presetCancelCrop: "Cancel preset crop",
   },
   error404: {
     backHome: "ホームページに戻る",

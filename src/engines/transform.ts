@@ -1,10 +1,13 @@
+import WorkerC from "./WorkerCompress?worker";
+import WorkerP from "./WorkerPreview?worker";
 import { useEffect } from "react";
 import { uniqId } from "@/functions";
-import { runInAction, toJS } from "mobx";
+import { toJS } from "mobx";
 import { ImageItem, homeState } from "@/states/home";
-import { CompressOption, ImageInfo } from "./ImageBase";
+import { CompressOption, Dimension, ImageInfo } from "./ImageBase";
 import { OutputMessageData } from "./handler";
-import { normalizeCompressOption } from "@/options";
+import { Mimes } from "@/mimes";
+import { svgConvert } from "./svgConvert";
 
 export interface MessageData {
   info: ImageInfo;
@@ -14,57 +17,43 @@ export interface MessageData {
 let workerC: Worker | null = null;
 let workerP: Worker | null = null;
 
-function message(event: MessageEvent<OutputMessageData>) {
+async function message(event: MessageEvent<OutputMessageData>) {
   const value = homeState.list.get(event.data.key);
   if (!value) return;
 
-  runInAction(() => {
-    // Field-level update avoids replacing the item and rerendering unrelated rows.
-    if (event.data.width) value.width = event.data.width;
-    if (event.data.height) value.height = event.data.height;
+  const item = toJS(value);
+  item.width = event.data.width;
+  item.height = event.data.height;
+  item.compress = event.data.compress ?? item.compress;
+  item.preview = event.data.preview ?? item.preview;
 
-    if (event.data.error) {
-      value.processError = event.data.error;
-      value.status = "error";
-    }
+  // SVG can't convert in worker，so we do converting here
+  if (item.blob.type === Mimes.svg && event.data.compress) {
+    await svgConvert(item.compress!);
+  }
 
-    if (event.data.preservedOriginal !== undefined) {
-      value.preservedOriginal = event.data.preservedOriginal;
-    }
-
-    if (event.data.compress) {
-      if (!value.compress) homeState.completedCompressCount++;
-      homeState.outputSize += event.data.compress.blob.size - (value.compress?.blob.size ?? 0);
-      value.compress = event.data.compress;
-      if (value.status !== "error") value.status = "done";
-    }
-
-    if (event.data.preview) {
-      if (!value.preview) homeState.completedPreviewCount++;
-      value.preview = event.data.preview;
-    }
-  });
+  homeState.list.set(item.key, item);
 }
 
 export function useWorkerHandler() {
   useEffect(() => {
-    workerC = new Worker(new URL("./WorkerCompress.ts", import.meta.url));
-    workerP = new Worker(new URL("./WorkerPreview.ts", import.meta.url));
+    workerC = new WorkerC();
+    workerP = new WorkerP();
     workerC.addEventListener("message", message);
     workerP.addEventListener("message", message);
 
     return () => {
-      workerC?.removeEventListener("message", message);
-      workerP?.removeEventListener("message", message);
-      workerC?.terminate();
-      workerP?.terminate();
+      workerC!.removeEventListener("message", message);
+      workerP!.removeEventListener("message", message);
+      workerC!.terminate();
+      workerP!.terminate();
       workerC = null;
       workerP = null;
     };
   }, []);
 }
 
-function createMessageData(item: ImageInfo, option: CompressOption): MessageData {
+function createMessageData(item: ImageInfo): MessageData {
   return {
     /**
      * Why not use the spread operator here?
@@ -81,37 +70,16 @@ function createMessageData(item: ImageInfo, option: CompressOption): MessageData
       width: item.width,
       height: item.height,
     },
-    option,
+    option: toJS(homeState.option),
   };
 }
 
-const dispatchQueue: Array<() => void> = [];
-let dispatchTimer: number | null = null;
-
-function flushDispatchQueue() {
-  dispatchTimer = null;
-  for (let count = 0; count < 8 && dispatchQueue.length > 0; count++) {
-    dispatchQueue.shift()!();
-  }
-  if (dispatchQueue.length > 0) {
-    dispatchTimer = window.setTimeout(flushDispatchQueue, 0);
-  }
-}
-
-function enqueueDispatch(task: () => void) {
-  dispatchQueue.push(task);
-  if (dispatchTimer === null) {
-    dispatchTimer = window.setTimeout(flushDispatchQueue, 0);
-  }
-}
-
 export function createCompressTask(item: ImageItem) {
-  const option = toJS(homeState.option);
-  enqueueDispatch(() => workerC?.postMessage(createMessageData(item, option)));
+  workerC?.postMessage(createMessageData(item));
 }
 
-function createPreviewTask(item: ImageItem, option: CompressOption) {
-  enqueueDispatch(() => workerP?.postMessage(createMessageData(item, option)));
+function createPreviewTask(item: ImageItem) {
+  workerP?.postMessage(createMessageData(item));
 }
 
 /**
@@ -119,57 +87,45 @@ function createPreviewTask(item: ImageItem, option: CompressOption) {
  * @param files
  */
 export async function createImageList(files: Array<File>) {
-  // Give user a heads-up when individual files exceed a reasonable size.
-  const largeFiles = files.filter((f) => f.size > 50 * 1024 * 1024);
-  if (largeFiles.length > 0) {
-    const names = largeFiles
-      .slice(0, 3)
-      .map((f) => f.name)
-      .join(", ");
-    const extra = largeFiles.length > 3 ? ` +${largeFiles.length - 3}` : "";
-    console.warn(
-      `[PicSmaller] Detected ${largeFiles.length} large file(s) (${names}${extra}). Processing may be slow or exceed browser memory limits.`,
-    );
-  }
-
-  if (files.length === 0) return;
-
-  const option = normalizeCompressOption(toJS(homeState.tempOption));
-  runInAction(() => { homeState.tempOption = structuredClone(option); });
-  runInAction(() => { homeState.option = option; });
-  try {
-    localStorage.setItem("pic-smaller-options", JSON.stringify(option));
-  } catch {}
-
-  for (let offset = 0; offset < files.length; offset += 40) {
-    const items = files.slice(offset, offset + 40).map((file): ImageItem => ({
+  const infoListPromise = files.map(async (file) => {
+    const info: ImageItem = {
       key: uniqId(),
       name: file.name,
       blob: file,
       width: 0,
       height: 0,
       src: URL.createObjectURL(file),
-      preview: undefined,
-      compress: undefined,
-      status: "processing",
-      processError: undefined,
-      preservedOriginal: false,
-    }));
+    };
 
-    runInAction(() => {
-      items.forEach((item) => {
-        homeState.list.set(item.key, item);
-        homeState.originSize += item.blob.size;
+    // Due to createImageBitmap do not support SVG blob,
+    // we should get dimension of SVG via Image
+    if (file.type === Mimes.svg) {
+      const { width, height } = await new Promise<Dimension>((resolve) => {
+        const img = new Image();
+        img.src = info.src;
+        img.onload = () => {
+          resolve({
+            x: 0,
+            y: 0,
+            width: img.width,
+            height: img.height,
+          });
+        };
       });
-    });
-
-    items.forEach((item) => {
-      createPreviewTask(item, option);
-      enqueueDispatch(() => workerC?.postMessage(createMessageData(item, option)));
-    });
-
-    if (offset + 40 < files.length) {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+      info.width = width;
+      info.height = height;
     }
-  }
+
+    return info;
+  });
+
+  (await Promise.all(infoListPromise)).forEach((item: ImageItem) => {
+    homeState.list.set(item.key, item);
+  });
+
+  homeState.option = toJS(homeState.tempOption);
+  homeState.list.forEach((item) => {
+    createPreviewTask(item);
+    createCompressTask(item);
+  });
 }

@@ -1,20 +1,5 @@
-.git
-.github
-.next
-.vercel
 .vscode
-node_modules
-out
-coverage
 docs
-*.log
-.env
-.env.*
-!.env.example
-.dev.vars*
-.wrangler
-wrangler.toml
-wrangler.json
-wrangler.jsonc
+node_modules
 
 .DS_Store

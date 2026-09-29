@@ -1,25 +1,16 @@
 import { LocaleData } from "@/type";
+import trTR from "antd/locale/tr_TR";
 
 const localeData: LocaleData = {
-  logo: "PicSmaller",
-  siteTitle:
-    "PicSmaller - Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images intelligently",
-  siteDescription:
-    "Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images securely in your browser. Batch resize, crop, and convert formats — all processed locally.",
+  antLocale: trTR,
+  logo: "Pic Smaller",
   initial: "Başlatılıyor",
   previewHelp:
     "Sıkıştırma etkisini karşılaştırmak için bölme çizgisini sürükleyin: soldaki orijinal görüntü, sağdaki sıkıştırılmış görüntü",
-  heif: {
-    previewUnavailable: "Tarayıcı özgün HEIC/HEIF görüntüsünü doğrudan gösteremediğinden önce-sonra karşılaştırması kullanılamıyor.",
-    originalPreserved: "Çıktı biçimi seçilmediği için özgün HEIC/HEIF dosyası korundu. Yeniden boyutlandırmak veya sıkıştırmak için bir çıktı biçimi seçin.",
-  },
-  errors: {
-    animatedUnsupported: "Animasyonlu AVIF/WebP sıkıştırması desteklenmez; orijinal dosya korundu.",
-  },
   uploadCard: {
     title: "Resimlerinizi buraya bırakın",
     subTitle: "Desteklenen formatlar: %s",
-    pasteHint: "Ctrl+V ile yapıştırın veya resimleri sürükleyin",
+    pasteHint: "💡 Ctrl+V ile yapıştırın veya resimleri sürükleyin",
   },
   listAction: {
     batchAppend: "Toplu ekle",
@@ -44,7 +35,7 @@ const localeData: LocaleData = {
   optionPannel: {
     failTip:
       "Daha küçük olamaz, lütfen parametreleri ayarlayın ve tekrar deneyin.",
-    help: "PicSmaller, toplu resim sıkıştırma uygulamasıdır. Seçeneklerde yapılan değişiklikler tüm resimlere uygulanacaktır.",
+    help: "Pic Smaller, toplu resim sıkıştırma uygulamasıdır. Seçeneklerde yapılan değişiklikler tüm resimlere uygulanacaktır.",
     resizeLable: "Görüntüyü yeniden boyutlandır",
     jpegLable: "JPEG/WEBP parametreleri",
     pngLable: "PNG parametreleri",
@@ -68,8 +59,6 @@ const localeData: LocaleData = {
     resetBtn: "Seçenekleri sıfırla",
     confirmBtn: "Seçenekleri uygula",
     qualityTitle: "Çıktının kalitesini ayarla (0-1)",
-    extremeMode: "Ekstrem mod",
-    extremeModeHint: "İşlem daha yavaş olur, ancak genellikle daha küçük bir dosya üretir.",
     colorsDesc: "Çıktınun renk sayısını ayarla (2-256)",
     pngDithering: "Dithering katsayısını ayarla (0-1)",
     gifDithering: "Dithering'i aç",
@@ -79,18 +68,6 @@ const localeData: LocaleData = {
     outputFormatPlaceholder: "Çıktı formatını seçin",
     transparentFillDesc: "Şeffaflık rengini seçin",
     cropCompareWarning: "Kırpma modu karşılaştırma önizlemesini desteklemiyor",
-    presetCrop: "Preset Crop (Paper)",
-    presetPaperSize: "Paper Size",
-    presetOrientation: "Orientation",
-    presetPortrait: "Portrait",
-    presetLandscape: "Landscape",
-    presetRefWidth: "Based on width",
-    presetRefHeight: "Based on height",
-    presetCropPx: "Crop per side (px)",
-    presetOffsetPx: "Offset (px)",
-    presetCropWarning: "Image's {axis} is insufficient for {paper} ratio",
-    presetSwitchRef: "Switch reference edge",
-    presetCancelCrop: "Cancel preset crop",
   },
   error404: {
     backHome: "Ana sayfaya dön",

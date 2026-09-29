@@ -1,11 +1,9 @@
-import { createBrowserHistory, createMemoryHistory } from "history";
+import { createBrowserHistory } from "history";
 import { normalize } from "./functions";
 import { gstate } from "./global";
 import { modules } from "./modules";
 
-export const history = typeof window === "undefined"
-  ? createMemoryHistory()
-  : createBrowserHistory();
+export const history = createBrowserHistory();
 
 type Params = Record<string, string | number> | null;
 
@@ -58,7 +56,7 @@ async function loadPageComponent(pathname: string) {
     const result = await importer;
     return <result.default />;
   } catch (error) {
-    const error404 = await import("@/views/error404");
+    const error404 = await import(`@/pages/error404/index.tsx`);
     return <error404.default />;
   }
 }

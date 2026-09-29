@@ -1,16 +1,10 @@
+import { Locale } from "antd/es/locale";
+
 export interface LocaleData {
+  antLocale: Locale;
   logo: string;
-  siteTitle: string;
-  siteDescription: string;
   initial: string;
   previewHelp: string;
-  heif: {
-    previewUnavailable: string;
-    originalPreserved: string;
-  };
-  errors: {
-    animatedUnsupported: string;
-  };
   error404: {
     backHome: string;
     description: string;
@@ -66,21 +60,7 @@ export interface LocaleData {
     cwSizePlaceholder: string;
     chSizePlaceholder: string;
     cropCompareWarning: string;
-    presetCrop: string;
-    presetPaperSize: string;
-    presetOrientation: string;
-    presetPortrait: string;
-    presetLandscape: string;
-    presetRefWidth: string;
-    presetRefHeight: string;
-    presetCropPx: string;
-    presetOffsetPx: string;
-    presetCropWarning: string;
-    presetSwitchRef: string;
-    presetCancelCrop: string;
     qualityTitle: string;
-    extremeMode: string;
-    extremeModeHint: string;
     resetBtn: string;
     confirmBtn: string;
     colorsDesc: string;

@@ -1,6 +1,7 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import style from "./index.module.scss";
-import { ArrowLeftRight, CircleHelp, X } from "lucide-react";
+import { Button, Flex, Popover, Space } from "antd";
+import { CloseOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { createPortal } from "react-dom";
 import { ImageItem, homeState } from "@/states/home";
 import { observer } from "mobx-react-lite";
@@ -19,22 +20,6 @@ export interface CompareState {
   containerWidth: number;
   containerHeight: number;
 }
-
-/**
- * Memoized image so divider dragging only re-layouts this small
- * subtree instead of re-rendering the full-size images every frame.
- */
-const CompareImage = memo(function CompareImage({
-  src,
-  style,
-  onLoad,
-}: {
-  src: string;
-  style: React.CSSProperties;
-  onLoad: () => void;
-}) {
-  return <img src={src} style={style} onLoad={onLoad} />;
-});
 
 export const Compare = observer(() => {
   const infoRef = useRef<Required<ImageItem>>(
@@ -56,7 +41,6 @@ export const Compare = observer(() => {
   });
   const [oldLoaded, setOldLoaded] = useState<boolean>(false);
   const [newLoaded, setNewLoaded] = useState<boolean>(false);
-  const [showHelp, setShowHelp] = useState(false);
 
   const update = useCallback(
     (newState: Partial<CompareState>) => {
@@ -81,12 +65,6 @@ export const Compare = observer(() => {
 
   useEffect(() => {
     gstate.loading = true;
-    return () => {
-      // Restore loading state on unmount (e.g. user closes comparison
-      // before both images finish loading), otherwise the global
-      // loading overlay would stay forever.
-      gstate.loading = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -258,7 +236,7 @@ export const Compare = observer(() => {
       }}
     >
       <div style={leftStyle}>
-        <CompareImage
+        <img
           src={infoRef.current.src}
           style={leftImageStyle}
           onLoad={() => {
@@ -267,7 +245,7 @@ export const Compare = observer(() => {
         />
       </div>
       <div style={rightStyle}>
-        <CompareImage
+        <img
           src={infoRef.current.compress.src}
           style={rightImageStyle}
           onLoad={() => {
@@ -276,19 +254,28 @@ export const Compare = observer(() => {
         />
       </div>
       <div style={barStyle}>
-        <div ref={barRef}><ArrowLeftRight size={20} /></div>
+        <Flex align="center" justify="center" ref={barRef}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M6.45,17.45L1,12L6.45,6.55L7.86,7.96L4.83,11H19.17L16.14,7.96L17.55,6.55L23,12L17.55,17.45L16.14,16.04L19.17,13H4.83L7.86,16.04L6.45,17.45Z" />
+          </svg>
+        </Flex>
       </div>
-      <div className={style.action}>
-        {showHelp && <div className={style.help}>{gstate.locale?.previewHelp}</div>}
-        <button type="button" aria-label="Comparison help" onClick={() => setShowHelp(!showHelp)}><CircleHelp size={20} /></button>
-        <button
-          type="button"
-          aria-label="Close comparison"
+      <Space className={style.action}>
+        <Popover
+          content={
+            <div className={style.help}>{gstate.locale?.previewHelp}</div>
+          }
+          placement="bottomRight"
+        >
+          <Button icon={<QuestionCircleOutlined />} />
+        </Popover>
+        <Button
+          icon={<CloseOutlined />}
           onClick={() => {
             updateRef.current?.({ status: "hide" });
           }}
-        ><X size={20} /></button>
-      </div>
+        />
+      </Space>
     </div>,
     document.body,
   );
