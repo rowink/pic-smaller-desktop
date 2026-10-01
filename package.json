@@ -21,6 +21,8 @@
     "preview": "vite preview",
     "electron:dev": "node scripts/dev.mjs",
     "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:mac": "npm run build && electron-builder --mac",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc",
     "format": "prettier --write --no-error-on-unmatched-pattern --ignore-unknown src/**/*",
@@ -102,6 +104,30 @@
     },
     "portable": {
       "artifactName": "PicSmaller-Portable-${version}.${ext}"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Graphics",
+      "executableName": "pic-smaller",
+      "maintainer": "rowink <exi.sides@gmail.com>",
+      "synopsis": "Batch image compression desktop app",
+      "artifactName": "PicSmaller-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "maintainer": "rowink <exi.sides@gmail.com>",
+      "artifactName": "PicSmaller_${version}_${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.graphics-design",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "artifactName": "PicSmaller-${version}-${arch}.${ext}"
     }
   }
 }
