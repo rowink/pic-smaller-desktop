@@ -69,6 +69,7 @@
   "build": {
     "appId": "com.joye61.picsmaller",
     "productName": "Pic Smaller",
+    "icon": "public/logo.svg",
     "directories": {
       "output": "release"
     },
