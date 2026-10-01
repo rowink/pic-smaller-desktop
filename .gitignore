@@ -16,6 +16,7 @@
 # production
 /build
 /dist
+/release
 
 # misc
 .DS_Store
@@ -35,3 +36,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.omo
+.history

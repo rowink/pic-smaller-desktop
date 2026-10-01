@@ -2,12 +2,25 @@
   "name": "pic-smaller",
   "private": true,
   "version": "1.1.0",
+  "description": "Pic Smaller - batch image compression desktop app powered by WebAssembly",
+  "author": {
+    "name": "rowink",
+    "url": "https://github.com/rowink"
+  },
+  "homepage": "https://github.com/rowink/pic-smaller-desktop",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rowink/pic-smaller-desktop.git"
+  },
   "type": "module",
+  "main": "electron/main.mjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "build:preview": "tsc && vite build --mode preview",
     "preview": "vite preview",
+    "electron:dev": "node scripts/dev.mjs",
+    "dist:win": "npm run build && electron-builder --win",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write --no-error-on-unmatched-pattern --ignore-unknown src/**/*",
     "test": "vitest run"
@@ -38,6 +51,8 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
@@ -47,5 +62,45 @@
     "vconsole": "^3.15.1",
     "vite": "^5.2.0",
     "vitest": "^1.6.0"
+  },
+  "build": {
+    "appId": "com.joye61.picsmaller",
+    "productName": "Pic Smaller",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Pic Smaller",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "PicSmaller-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "PicSmaller-Portable-${version}.${ext}"
+    }
   }
 }

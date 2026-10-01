@@ -37,7 +37,8 @@ export const App = observer(() => {
       <AntApp>
         <ContextAction />
       </AntApp>
-      {import.meta.env.MODE === "production" && <Analytics />}
+      {import.meta.env.MODE === "production" &&
+        location.protocol.startsWith("http") && <Analytics />}
       {gstate.page}
       {gstate.loading && <Loading />}
     </ConfigProvider>

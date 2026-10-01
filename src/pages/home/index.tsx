@@ -52,7 +52,7 @@ const Header = observer(() => {
         <Typography.Link
           className={style.github}
           target="_blank"
-          href="https://github.com/joye61/pic-smaller"
+          href="https://github.com/rowink/pic-smaller-desktop"
         >
           <GithubOutlined />
         </Typography.Link>

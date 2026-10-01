@@ -17,4 +17,11 @@ module.exports = {
     "no-empty": "off",
     "@typescript-eslint/no-explicit-any": "off",
   },
+  overrides: [
+    {
+      files: ["electron/**/*.mjs", "scripts/**/*.mjs"],
+      env: { node: true, es2020: true, browser: false },
+      parserOptions: { sourceType: "module" },
+    },
+  ],
 };

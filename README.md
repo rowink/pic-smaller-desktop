@@ -40,10 +40,10 @@ Pic smaller is a [Vite](https://vitejs.dev/) + [React](https://react.dev/) proje
 
 ```bash
 # Clone the repo
-git clone https://github.com/joye61/pic-smaller.git
+git clone https://github.com/rowink/pic-smaller-desktop.git
 
 # Change cwd
-cd ./pic-smaller
+cd ./pic-smaller-desktop
 
 # Install dependences
 npm install
