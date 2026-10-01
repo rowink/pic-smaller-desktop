@@ -12,7 +12,7 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Verify tag matches package.json version
         if: startsWith(github.ref, 'refs/tags/')
@@ -25,7 +25,7 @@ jobs:
             exit 1
           }
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -43,25 +43,24 @@ jobs:
         run: npx electron-builder --win --publish never
 
       - name: Create or update GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "${{ github.ref_name }}"
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $tag = "${{ github.ref_name }}"
+          } else {
+            $tag = "v$version"
+          }
           $files = (Get-Item release/PicSmaller-Setup-*.exe, release/PicSmaller-Portable-*.exe).FullName
-          if (gh release view $tag 2>$null) {
+          $null = gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $files --clobber
           } else {
-            gh release create $tag $files --title "Pic Smaller $tag" --generate-notes
+            $target = @()
+            if ("${{ github.ref_type }}" -ne "tag") {
+              $target = @("--target", "${{ github.sha }}")
+            }
+            gh release create $tag $files @target --title "Pic Smaller $tag" --generate-notes
           }
-
-      - name: Upload build artifacts
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: pic-smaller-windows
-          path: |
-            release/PicSmaller-Setup-*.exe
-            release/PicSmaller-Portable-*.exe
-          if-no-files-found: error
