@@ -1,5 +1,15 @@
 @import "antd/dist/reset.css";
 
+// Fixed-viewport app: content scrolls only inside internal panels.
+// Never let the document itself scroll — a document scrollbar shifts the
+// whole 100vh layout by ~15px during overflow (drawer/portal animations),
+// which caused visible page jitter on desktop.
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 .__initial {
   height: 100vh;
   img {
