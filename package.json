@@ -1,7 +1,7 @@
 {
   "name": "pic-smaller",
   "private": true,
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Pic Smaller - batch image compression desktop app powered by WebAssembly",
   "author": {
     "name": "rowink",
@@ -106,7 +106,10 @@
       "artifactName": "PicSmaller-Portable-${version}.${ext}"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Graphics",
       "executableName": "pic-smaller",
       "maintainer": "rowink <exi.sides@gmail.com>",
@@ -121,7 +124,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.graphics-design",
