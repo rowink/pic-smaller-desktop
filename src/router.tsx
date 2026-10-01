@@ -1,5 +1,5 @@
 import { createBrowserHistory } from "history";
-import { normalize } from "./functions";
+import { normalize, withBase } from "./functions";
 import { gstate } from "./global";
 import { modules } from "./modules";
 
@@ -29,10 +29,11 @@ function buildQueryString(params?: Params) {
 }
 
 function navigate(pathname: string, type: string): void {
+  const target = withBase(pathname);
   if (type === "push") {
-    history.push(pathname);
+    history.push(target);
   } else if (type === "replace") {
-    history.replace(pathname);
+    history.replace(target);
   } else {
     throw new Error("Error history route method");
   }

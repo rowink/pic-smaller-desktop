@@ -18,6 +18,26 @@ export function normalize(pathname: string, base = import.meta.env.BASE_URL) {
 }
 
 /**
+ * Prepend the base path to an app-relative pathname (mirror of {@link normalize}).
+ * Keeps history navigation inside the app when it is deployed under a
+ * sub-path, e.g. a GitHub Pages project site (`/<repo>/`).
+ * @param pathname
+ * @param base
+ * @returns
+ */
+export function withBase(pathname: string, base = import.meta.env.BASE_URL) {
+  // Ensure starts with '/'
+  pathname = "/" + pathname.replace(/^\/*/, "");
+  base = "/" + base.replace(/^\/*/, "");
+  // Drop trailing slashes so base becomes '' for the root deploy
+  base = base.replace(/\/+$/, "");
+  if (!base) return pathname;
+  if (pathname === base) return `${base}/`;
+  if (pathname.startsWith(`${base}/`)) return pathname;
+  return base + pathname;
+}
+
+/**
  * Globaly uniqid in browser session lifecycle
  */
 let __UniqIdIndex = 0;
